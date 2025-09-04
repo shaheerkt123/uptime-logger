@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+# Just in case services are still referenced
+systemctl daemon-reload || true
+
+exit 0

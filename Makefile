@@ -1,91 +1,74 @@
 SHELL := /bin/bash
-
-# Project info
-NAME        := uptime-logger
-VERSION     := 2.0
-RELEASE     := 1
-TARBALL     := $(NAME)-$(VERSION).tar.gz
+NAME  := uptime-logger
+VERSION := 2.0
 
 # Paths
-BUILD_DIR   := build
-SRC_DIR     := src
-SERVICES_DIR := $(SRC_DIR)/services
+BUILD_DIR := build
+SRC_DIR   := src
 
-PKG_DEBIAN  := packaging/debian
-PKG_RPM     := packaging/rpm
-RPMBUILD    := $(HOME)/rpmbuild
-SOURCES_DIR := $(RPMBUILD)/SOURCES
-SPECS_DIR   := $(RPMBUILD)/SPECS
+# Tarball
+DIST_DIR  := $(BUILD_DIR)/$(NAME)-$(VERSION)
+TARBALL   := $(BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
 
-# Debian package paths
-DEBIAN_BIN_DIR := $(PKG_DEBIAN)/usr/local/bin
-DEBIAN_SYSTEMD_DIR := $(PKG_DEBIAN)/etc/systemd/system
+# Toolchain
+CC := gcc
 
-# RPM package paths
-RPM_PKG_DIR := $(PKG_RPM)/uptime-logger-package
-RPM_BIN_DIR := $(RPM_PKG_DIR)/usr/local/bin
-RPM_SYSTEMD_DIR := $(RPM_PKG_DIR)/etc/systemd/system
+# Flags
+CFLAGS   := -O2 -Wall -Wextra -g -fPIE
+LDFLAGS  := -lsqlite3 -lcurl -pie
 
-all: deb rpm
+# Install paths
+PREFIX      := /usr
+BIN_DIR     := $(PREFIX)/bin
+SYSTEMD_DIR ?= /etc/systemd/system
 
-help:
-	@echo "Available targets:"
-	@echo "  make build       - Compile C programs"
-	@echo "  make sync-files  - Copy source files to packaging directories"
-	@echo "  make tarball-rpm - Create source tarball for RPM"
-	@echo "  make deb         - Build Debian package"
-	@echo "  make rpm         - Build RPM package"
-	@echo "  make clean       - Clean build artifacts"
+.PHONY: all build clean install dist rpm
 
-build:
-	@echo "Compiling C programs..."
-	mkdir -p $(BUILD_DIR)
-	gcc $(SRC_DIR)/main.c -o $(BUILD_DIR)/uptime_logger -lsqlite3
-	gcc $(SRC_DIR)/upload.c -o $(BUILD_DIR)/uptime_upload -lsqlite3 -lcurl
+all: build
 
-sync-files: build
-	@echo "Syncing files to packaging directories..."
-	# Debian
-	mkdir -p $(DEBIAN_BIN_DIR) $(DEBIAN_SYSTEMD_DIR)
-	cp -u $(BUILD_DIR)/uptime_logger $(DEBIAN_BIN_DIR)/
-	cp -u $(BUILD_DIR)/uptime_upload $(DEBIAN_BIN_DIR)/
-	cp -u $(SRC_DIR)/uptime_upload_cron.sh $(DEBIAN_BIN_DIR)/
-	cp -u $(SERVICES_DIR)/uptime-logger.service $(DEBIAN_SYSTEMD_DIR)/
-	cp -u $(SERVICES_DIR)/uptime-logger-shutdown.service $(DEBIAN_SYSTEMD_DIR)/
-	# RPM
-	mkdir -p $(RPM_BIN_DIR) $(RPM_SYSTEMD_DIR)
-	cp -u $(BUILD_DIR)/uptime_logger $(RPM_BIN_DIR)/
-	cp -u $(BUILD_DIR)/uptime_upload $(RPM_BIN_DIR)/
-	cp -u $(SRC_DIR)/uptime_upload_cron.sh $(RPM_BIN_DIR)/
-	cp -u $(SERVICES_DIR)/uptime-logger.service $(RPM_SYSTEMD_DIR)/
-	cp -u $(SERVICES_DIR)/uptime-logger-shutdown.service $(RPM_SYSTEMD_DIR)/
+build: $(BUILD_DIR)/uptime_logger $(BUILD_DIR)/uptime_upload
 
-tarball-rpm:
-	@echo "Creating source tarball for RPM..."
-	mkdir -p $(BUILD_DIR)
-	rm -rf tmp-tar
-	mkdir -p tmp-tar/$(NAME)-$(VERSION)
-	# Copy only the RPM package folder
-	rsync -a packaging/rpm/uptime-logger-package/ tmp-tar/$(NAME)-$(VERSION)/
-	tar -C tmp-tar -czf $(BUILD_DIR)/$(TARBALL) $(NAME)-$(VERSION)
-	rm -rf tmp-tar
+$(BUILD_DIR)/uptime_logger: $(SRC_DIR)/main.c
+	@echo "Compiling uptime_logger..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS) -lsqlite3
 
-deb: sync-files
-	@echo "Building .deb package..."
-	mkdir -p $(BUILD_DIR)
-	cd $(PKG_DEBIAN) && dpkg-deb --build . ../../$(BUILD_DIR)/$(NAME)_$(VERSION)-$(RELEASE).deb
-
-rpm: sync-files tarball-rpm
-	@echo "Building .rpm package..."
-	# Clean old rpmbuild dirs (optional but safe)
-	rm -rf $(RPMBUILD)/BUILD/* $(RPMBUILD)/BUILDROOT/* $(RPMBUILD)/RPMS/* $(RPMBUILD)/SRPMS/*
-	mkdir -p $(SOURCES_DIR) $(SPECS_DIR)
-	mv $(BUILD_DIR)/$(TARBALL) $(SOURCES_DIR)/
-	cp $(PKG_RPM)/$(NAME).spec $(SPECS_DIR)/
-	rpmbuild -ba $(SPECS_DIR)/$(NAME).spec
-	# Move RPMs into Build/
-	find $(RPMBUILD)/RPMS -name "$(NAME)-$(VERSION)-$(RELEASE)*.rpm" -exec mv {} $(BUILD_DIR)/ \;
+$(BUILD_DIR)/uptime_upload: $(SRC_DIR)/upload.c
+	@echo "Compiling uptime_upload..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -rf $(BUILD_DIR) $(SPECS_DIR) $(SOURCES_DIR)
+	@rm -rf $(BUILD_DIR)
+
+install: build
+	@echo "Installing files to $(DESTDIR)..."
+	# Create directories
+	install -d $(DESTDIR)$(BIN_DIR)
+	install -d $(DESTDIR)$(SYSTEMD_DIR)
+	install -d $(DESTDIR)/etc/cron.d
+	# Install binaries
+	install -m 755 $(BUILD_DIR)/uptime_logger $(DESTDIR)$(BIN_DIR)/
+	install -m 755 $(BUILD_DIR)/uptime_upload $(DESTDIR)$(BIN_DIR)/
+	# Install scripts, service files, and cron definitions
+	install -m 755 $(SRC_DIR)/uptime_upload_cron.sh $(DESTDIR)$(BIN_DIR)/
+	install -m 644 $(SRC_DIR)/services/uptime-logger.service $(DESTDIR)$(SYSTEMD_DIR)/
+	install -m 644 $(SRC_DIR)/services/uptime-logger-shutdown.service $(DESTDIR)$(SYSTEMD_DIR)/
+	install -m 644 $(SRC_DIR)/cron/uptime-logger $(DESTDIR)/etc/cron.d/
+
+dist: clean
+	@echo "Creating source tarball..."
+	@mkdir -p $(DIST_DIR)
+	@cp -r src/ packaging/ LICENSE Makefile README.md TODO $(DIST_DIR)/
+	@tar -C $(BUILD_DIR) -czf $(TARBALL) $(NAME)-$(VERSION)
+	@rm -rf $(DIST_DIR)
+
+rpm: dist
+	@echo "Building RPM package..."
+	@mkdir -p $(HOME)/rpmbuild/SOURCES
+	@cp $(TARBALL) $(HOME)/rpmbuild/SOURCES/
+	@rpmbuild -ba packaging/rpm/uptime-logger.spec
+	@echo "Moving RPMs to $(BUILD_DIR)/..."
+	@find $(HOME)/rpmbuild/RPMS -name "$(NAME)*.rpm" -exec mv {} $(BUILD_DIR) \;
+	@find $(HOME)/rpmbuild/SRPMS -name "$(NAME)*.src.rpm" -exec mv {} $(BUILD_DIR) \;

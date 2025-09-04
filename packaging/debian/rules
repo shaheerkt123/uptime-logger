@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+# Export DEB_BUILD_MAINT_OPTIONS to enable hardening flags
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@

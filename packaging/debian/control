@@ -1,0 +1,14 @@
+Source: uptime-logger
+Maintainer: Shaheer <shaheerkt1234@gmail.com>
+Homepage: https://github.com/shaheerkt123/uptime-logger
+Vcs-Git: https://github.com/shaheerkt123/uptime-logger.git
+Vcs-Browser: https://github.com/shaheerkt123/uptime-logger
+Build-Depends: debhelper-compat (= 13), gcc, libsqlite3-dev, libcurl4-openssl-dev
+Section: utils
+Priority: optional
+
+Package: uptime-logger
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Logs boot and shutdown times to a SQLite database
+ Simple utility that records boot and shutdown.

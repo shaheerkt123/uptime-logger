@@ -1,0 +1,1 @@
+* * * * * root /usr/local/bin/uptime_upload_cron.sh >> /var/log/uptime_upload.log 2>&1

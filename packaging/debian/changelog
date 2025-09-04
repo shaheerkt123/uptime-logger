@@ -1,0 +1,8 @@
+uptime-logger (2.0-2) unstable; urgency=medium
+
+  * Debian packaging refactoring for repository quality.
+    - Added debian/copyright, debian/changelog, debian/rules.
+    - Updated debian/control with more metadata.
+    - Changed install path to /usr/bin.
+
+ -- Shaheer <shaheerkt1234@gmail.com>  Mon, 13 Oct 2025 04:52:34 +0530

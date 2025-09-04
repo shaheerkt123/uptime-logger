@@ -1,16 +1,47 @@
-%define debug_package %{nil}
 Name:           uptime-logger
 Version:        2.0
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        Logs system uptime and shutdown times
+
 License:        MIT
 URL:            https://github.com/shaheerkt123/uptime-logger
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-Requires: sqlite-libs, libcurl, systemd
+BuildRequires:  gcc
+BuildRequires:  sqlite-devel
+BuildRequires:  libcurl-devel
+BuildRequires:  systemd
+Requires:       systemd, crontabs
 
 %description
 A small tool that logs system uptime and shutdown times, with upload support.
+
+%prep
+%setup -q
+
+%build
+%make_build
+
+%check
+# Placeholder for future tests
+
+%install
+make install DESTDIR=%{buildroot} SYSTEMD_DIR=%{_unitdir}
+
+# Create the data directory
+install -d %{buildroot}/var/lib/uptime-logger
+
+# Install RPM-specific files
+install -d %{buildroot}%{_presetdir}
+install -m 644 packaging/rpm/90-uptime-logger.preset %{buildroot}%{_presetdir}/
+
+# Add User and Group to service files
+sed -i '/\[Service\]/a User=uptime-logger' %{buildroot}%{_unitdir}/uptime-logger.service
+sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}%{_unitdir}/uptime-logger.service
+sed -i '/\[Service\]/a User=uptime-logger' %{buildroot}%{_unitdir}/uptime-logger-shutdown.service
+sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}%{_unitdir}/uptime-logger-shutdown.service
+# Run cron job as uptime-logger user
+sed -i 's/root/uptime-logger/' %{buildroot}/etc/cron.d/uptime-logger
 
 %pre
 # Create a dedicated user and group for the service
@@ -19,36 +50,6 @@ getent passwd uptime-logger >/dev/null || \
     useradd -r -g uptime-logger -d /var/lib/uptime-logger -s /sbin/nologin \
     -c "Uptime Logger service account" uptime-logger
 
-%prep
-%setup -q
-
-%build
-# Binaries are pre-compiled via Makefile before rpmbuild is called.
-
-%install
-# Just copy the whole tree from tarball into buildroot
-cp -a usr %{buildroot}/
-cp -a etc %{buildroot}/
-mkdir -p %{buildroot}/var/lib/uptime-logger
-
-# Add User and Group to service files
-sed -i '/\[Service\]/a User=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger.service
-sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger.service
-sed -i '/\[Service\]/a User=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger-shutdown.service
-sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger-shutdown.service
-# Run cron job as uptime-logger user
-sed -i 's/root/uptime-logger/' %{buildroot}/etc/cron.d/uptime_upload
-
-%files
-/usr/local/bin/uptime_logger
-/usr/local/bin/uptime_upload
-/usr/local/bin/uptime_upload_cron.sh
-/etc/systemd/system/uptime-logger.service
-/etc/systemd/system/uptime-logger-shutdown.service
-/etc/cron.d/uptime_upload
-/usr/lib/systemd/system-preset/90-uptime-logger.preset
-%dir %attr(0750, uptime-logger, uptime-logger) /var/lib/uptime-logger
-
 %post
 %systemd_post uptime-logger.service uptime-logger-shutdown.service
 
@@ -56,14 +57,27 @@ sed -i 's/root/uptime-logger/' %{buildroot}/etc/cron.d/uptime_upload
 %systemd_preun uptime-logger.service uptime-logger-shutdown.service
 
 %postun
-%systemd_postun uptime-logger.service uptime-logger-shutdown.service
-# Clean up user and group on uninstall
-if [ $1 -eq 0 ]; then
-    userdel uptime-logger >/dev/null 2>&1 || true
-    groupdel uptime-logger >/dev/null 2>&1 || true
-fi
+%systemd_postun_with_restart uptime-logger.service uptime-logger-shutdown.service
+
+%files
+%license LICENSE
+%doc README.md
+%{_bindir}/uptime_logger
+%{_bindir}/uptime_upload
+%{_bindir}/uptime_upload_cron.sh
+%{_unitdir}/uptime-logger.service
+%{_unitdir}/uptime-logger-shutdown.service
+%config(noreplace) /etc/cron.d/uptime-logger
+%{_presetdir}/90-uptime-logger.preset
+%dir %attr(0755, uptime-logger, uptime-logger) /var/lib/uptime-logger
 
 %changelog
+* Mon Oct 13 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-3
+- Final spec file polish to fix rpmlint errors.
+
+* Mon Oct 13 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-2
+- Refactor for repository quality standards
+- Use standard RPM macros and build process
 
 * Fri Oct 10 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-1
 - Switch from Python scripts to compiled C binaries
@@ -75,4 +89,3 @@ fi
 
 * Wed Oct 01 2025 Shaheer <shaheerkt1234@gmail.com> - 1.0-1
 - Initial RPM release
-uptime_logger

@@ -123,30 +123,19 @@ void list_sessions(sqlite3 *db) {
         return;
     }
 
-    printf("% -5s | % -25s | % -25s\n", "ID", "Boot Time", "Shutdown Time");
+    printf("%-5s | %-25s | %-25s\n", "ID", "Boot Time", "Shutdown Time");
     printf("------|---------------------------|---------------------------\n");
 
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
-        time_t boot_time = sqlite3_column_int64(stmt, 1);
-        time_t shutdown_time = sqlite3_column_int64(stmt, 2);
+        const unsigned char *boot_time = sqlite3_column_text(stmt, 1);
+        const unsigned char *shutdown_time = sqlite3_column_text(stmt, 2);
 
-        char boot_str[26];
-        char shut_str[26];
+        // Check for NULL pointers before using them
+        const char *boot_str = boot_time ? (const char *)boot_time : "N/A";
+        const char *shut_str = shutdown_time ? (const char *)shutdown_time : "Still running";
 
-        // Get boot time string
-        ctime_r(&boot_time, boot_str);
-        boot_str[strcspn(boot_str, "\n")] = 0; // remove newline
-
-        // Get shutdown time string, or "In Progress"
-        if (shutdown_time == 0) {
-            snprintf(shut_str, sizeof(shut_str), "In Progress");
-        } else {
-            ctime_r(&shutdown_time, shut_str);
-            shut_str[strcspn(shut_str, "\n")] = 0; // remove newline
-        }
-
-        printf("% -5d | % -25s | % -25s\n", id, boot_str, shut_str);
+        printf("%-5d | %-25s | %-25s\n", id, boot_str, shut_str);
     }
 
     if (rc != SQLITE_DONE) {

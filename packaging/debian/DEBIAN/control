@@ -1,9 +1,0 @@
-Package: uptime-logger
-Version: 2.0
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: Shaheer <shaheerkt1234@gmail.com>
-Depends: libsqlite3-0, libcurl4, systemd
-Description: Logs boot and shutdown times to a SQLite database
- Simple utility that records boot and shutdown.

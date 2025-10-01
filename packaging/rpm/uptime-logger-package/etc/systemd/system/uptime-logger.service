@@ -1,0 +1,10 @@
+[Unit]
+Description=Log boot time to SQLite
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/bin/pc_uptime_logger.py
+
+[Install]
+WantedBy=multi-user.target

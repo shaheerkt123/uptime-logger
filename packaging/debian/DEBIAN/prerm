@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+# Only run this on package removal
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+    echo "Stopping uptime-logger services..."
+    for svc in uptime-logger.service uptime-logger-shutdown.service; do
+        if systemctl is-active --quiet "$svc"; then
+            systemctl stop "$svc" || true
+        fi
+        if systemctl is-enabled --quiet "$svc"; then
+            systemctl disable "$svc" || true
+        fi
+    done
+
+    echo "Removing installed scripts..."
+    rm -f /usr/local/bin/pc_uptime_logger.py
+    rm -f /usr/local/bin/delta_upload.py
+    rm -f /usr/local/bin/delta_upload_cron.sh
+
+    echo "Removing systemd service files..."
+    rm -f /etc/systemd/system/uptime-logger.service
+    rm -f /etc/systemd/system/uptime-logger-shutdown.service
+
+    echo "Reloading systemd daemon..."
+    systemctl daemon-reload || true
+
+    echo "Removing cron job..."
+    CRON_JOB="* * * * * /usr/local/bin/delta_upload_cron.sh"
+    # Only modify crontab if the job exists
+    if crontab -l 2>/dev/null | grep -Fq "$CRON_JOB"; then
+        crontab -l 2>/dev/null | grep -vF "$CRON_JOB" | crontab -
+    fi
+
+    echo "Cleanup complete."
+fi
+
+exit 0

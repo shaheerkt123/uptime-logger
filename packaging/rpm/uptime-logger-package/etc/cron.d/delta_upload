@@ -1,0 +1,1 @@
+* * * * * root /usr/local/bin/delta_upload_cron.sh >> /var/log/delta_upload_cron.log 2>&1

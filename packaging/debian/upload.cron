@@ -1,2 +1,0 @@
-# Run delta_upload_cron.sh every minute
-* * * * * root /usr/local/bin/delta_upload_cron.sh >> /var/log/uptime-logger-cron.log 2>&1

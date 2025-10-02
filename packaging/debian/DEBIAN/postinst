@@ -1,32 +1,14 @@
 #!/bin/sh
 set -e
 
-#!/bin/sh
-set -e
+echo "Creating data directory..."
+mkdir -p /var/lib/uptime-logger
 
 echo "Reloading systemd daemon..."
 systemctl daemon-reload || true
 
-echo "Enabling uptime-logger services..."
-for svc in uptime-logger.service uptime-logger-shutdown.service; do
-    if [ -f "/etc/systemd/system/$svc" ]; then
-        systemctl enable "$svc" || true
-        systemctl start "$svc" || true
-    else
-        echo "Warning: $svc not found, skipping enable/start."
-    fi
-done
+echo "Enabling systemd services..."
+systemctl enable uptime-logger.service || true
+systemctl enable uptime-logger-shutdown.service || true
 
-echo "Setting up cron job..."
-CRON_JOB="* * * * * /usr/local/bin/delta_upload_cron.sh"
-
-# Only add the cron job if it doesn't already exist
-if ! crontab -l 2>/dev/null | grep -Fq "$CRON_JOB"; then
-    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
-    echo "Cron job added."
-else
-    echo "Cron job already exists, skipping."
-fi
-
-echo "installation complete."
 exit 0

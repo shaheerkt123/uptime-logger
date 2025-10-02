@@ -1,0 +1,2 @@
+enable uptime-logger.service
+enable uptime-logger-shutdown.service

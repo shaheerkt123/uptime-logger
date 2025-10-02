@@ -1,0 +1,11 @@
+[Unit]
+Description=Log shutdown time to SQLite
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/bin/pc_uptime_logger.py --shutdown
+
+[Install]
+WantedBy=halt.target reboot.target shutdown.target

@@ -26,9 +26,21 @@ cp -a etc %{buildroot}/
 %files
 /usr/local/bin/pc_uptime_logger.py
 /usr/local/bin/delta_upload.py
-/usr/local/bin/check_internet_cron.sh
+/usr/local/bin/delta_upload_cron.sh
 /etc/systemd/system/uptime-logger.service
 /etc/systemd/system/uptime-logger-shutdown.service
+/etc/cron.d/delta_upload
+/usr/lib/systemd/system-preset/90-uptime-logger.preset
+%dir /var/lib/uptime-logger
+
+%post
+%systemd_post uptime-logger.service uptime-logger-shutdown.service
+
+%preun
+%systemd_preun uptime-logger.service uptime-logger-shutdown.service
+
+%postun
+%systemd_postun uptime-logger.service uptime-logger-shutdown.service
 
 %changelog
 * Wed Oct 01 2025 Shaheer <shaheerkt1234@gmail.com> - 1.0-1

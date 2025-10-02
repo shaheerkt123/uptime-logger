@@ -9,7 +9,3 @@ dpkg-deb: building package 'uptime-logger' in '../../Build/uptime-logger_1.0-1.d
 shaheer@fedora:~/project/uptime-logger$ 
 
 # fix this
-
-Directory not found: /home/shaheer/rpmbuild/BUILD/uptime-logger-1.0-build/BUILDROOT/var/lib/uptime-logger
-
-#fix this

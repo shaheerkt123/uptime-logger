@@ -3,6 +3,7 @@ set -e
 
 echo "Creating data directory..."
 mkdir -p /var/lib/uptime-logger
+chown root:root /var/lib/uptime-logger
 
 echo "Reloading systemd daemon..."
 systemctl daemon-reload || true

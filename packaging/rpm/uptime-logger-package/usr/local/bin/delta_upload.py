@@ -1,9 +1,8 @@
-import sqlite3
+import sqlite3, sys
 from pathlib import Path
 import requests
 
 DB_FILE = "/var/lib/uptime-logger/uptime.db"
-# TODO: Replace with your actual ntfy topic URL
 NTFY_URL = "https://ntfy.sh/uptime_logger"
 
 
@@ -11,7 +10,10 @@ conn = sqlite3.connect(DB_FILE)
 cursor = conn.cursor()
 
 cursor.execute("SELECT id FROM sessions ORDER BY id DESC LIMIT 1")
-last_id = cursor.fetchone()[0]
+result = cursor.fetchone()
+if result is None:
+    sys.exit("Database is empty, nothing to do.")
+last_id = result[0]
 # fech last_id 
 
 
@@ -42,7 +44,7 @@ def upload_db(start, end):
     conn.close()
 
 
-counter_file = Path(".counter")
+counter_file = Path("/var/lib/uptime-logger/.counter")
 
 if counter_file.exists():
     counter = int(counter_file.read_text())

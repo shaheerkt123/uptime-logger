@@ -10,7 +10,6 @@ TARBALL     := $(NAME)-$(VERSION).tar.gz
 BUILD_DIR   := Build
 PKG_DEBIAN  := packaging/debian
 PKG_RPM     := packaging/rpm
-# SOURCE_CODE := uptime_logger
 RPMBUILD    := $(HOME)/rpmbuild
 SOURCES_DIR := $(RPMBUILD)/SOURCES
 SPECS_DIR   := $(RPMBUILD)/SPECS
@@ -53,24 +52,3 @@ rpm: tarball-rpm
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
-
-# mvsourcecode:
-# 	@echo "Copying source code..."
-# 	mkdir -p $(PKG_DEBIAN)/usr/local/bin/
-# 	mkdir -p $(PKG_RPM)/uptime-logger-package/usr/local/bin/
-# 	mkdir -p $(PKG_DEBIAN)/etc/systemd/system/
-# 	mkdir -p $(PKG_RPM)/uptime-logger-package/etc/systemd/system/
-
-# 	cp uptime_logger/pc_uptime_logger.py uptime_logger/delta_upload.py uptime_logger/delta_upload_cron.sh $(PKG_DEBIAN)/usr/local/bin/
-# 	cp uptime_logger/pc_uptime_logger.py uptime_logger/delta_upload.py uptime_logger/delta_upload_cron.sh $(PKG_RPM)/uptime-logger-package/usr/local/bin/
-# 	cp services/* $(PKG_DEBIAN)/etc/systemd/system/
-# 	cp services/* $(PKG_RPM)/uptime-logger-package/etc/systemd/system/
-# 	@echo "Copying completed."
-
-# remove:
-# 	rm -rf $(PKG_DEBIAN)/bin
-# 	rm -rf $(PKG_DEBIAN)/etc
-# 	rm -rf $(PKG_RPM)/uptime-logger-package/bin
-# 	rm -rf $(PKG_RPM)/uptime-logger-package/etc
-
-# maybe later

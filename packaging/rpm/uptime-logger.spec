@@ -22,6 +22,7 @@ A small tool that logs system uptime and shutdown times, with upload support.
 # Just copy the whole tree from tarball into buildroot
 cp -a usr %{buildroot}/
 cp -a etc %{buildroot}/
+mkdir -p %{buildroot}/var/lib/uptime-logger
 
 %files
 /usr/local/bin/pc_uptime_logger.py

@@ -2,8 +2,9 @@ import sqlite3
 from pathlib import Path
 import requests
 
-DB_FILE = "uptime.db"
-NTFY_URL = "/var/lib/uptime-logger/uptime.db"
+DB_FILE = "/var/lib/uptime-logger/uptime.db"
+# TODO: Replace with your actual ntfy topic URL
+NTFY_URL = "https://ntfy.sh/uptime_logger"
 
 
 conn = sqlite3.connect(DB_FILE)

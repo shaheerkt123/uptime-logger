@@ -10,4 +10,6 @@ shaheer@fedora:~/project/uptime-logger$
 
 # fix this
 
-do cron
+Directory not found: /home/shaheer/rpmbuild/BUILD/uptime-logger-1.0-build/BUILDROOT/var/lib/uptime-logger
+
+#fix this

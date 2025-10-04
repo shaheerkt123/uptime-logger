@@ -3,6 +3,7 @@ from pathlib import Path
 import requests
 
 DB_FILE = "/var/lib/uptime-logger/uptime.db"
+COUNTER_FILE = "/var/lib/uptime-logger/.counter"
 NTFY_URL = "https://ntfy.sh/uptime_logger"
 
 
@@ -21,11 +22,10 @@ last_id = result[0]
 def upload_db(start, end):
     if start == end:
         return #do nothing
-    
     print(start, end) # for debugging
 
-    # Query rows from id 1 to 10
-    cursor.execute("SELECT * FROM sessions WHERE id BETWEEN ? AND ?", (start, end))
+    # Query rows from start to end
+    cursor.execute("SELECT * FROM sessions WHERE id BETWEEN ? AND ?", (start + 1, end)) # to not include from the last upload
     rows = cursor.fetchall()
 
     if not rows:
@@ -37,19 +37,15 @@ def upload_db(start, end):
     # Send to ntfy
     requests.post(NTFY_URL, data=msg.encode("utf-8"))
 
-    # Print results
-    for row in rows:
-        print(row)
-
     conn.close()
 
 
-counter_file = Path("/var/lib/uptime-logger/.counter")
+counter_file = Path(COUNTER_FILE)
 
 if counter_file.exists():
     counter = int(counter_file.read_text())
     upload_db(counter, last_id)
 else:
-    counter_file.write_text(str(last_id))
     upload_db(0, last_id)
+counter_file.write_text(str(last_id))
 # write and read file and upload accordingly

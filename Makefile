@@ -3,7 +3,7 @@ SHELL := /bin/bash
 # Project info
 NAME        := uptime-logger
 VERSION     := 1.0
-RELEASE     := 1
+RELEASE     := 2
 TARBALL     := $(NAME)-$(VERSION).tar.gz
 
 # Paths
@@ -51,4 +51,4 @@ rpm: tarball-rpm
 
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(SPECS_DIR) $(SOURCES_DIR)

@@ -18,7 +18,7 @@ all: deb rpm
 
 help:
 	@echo "Available targets:"
-	@echo "  make tarball     - Create source tarball"
+	@echo "  make tarball-rpm - Create source tarball for RPM"
 	@echo "  make deb         - Build Debian package"
 	@echo "  make rpm         - Build RPM package"
 	@echo "  make clean       - Clean build artifacts"

@@ -1,3 +1,5 @@
+Build/
+.vscode/*
 venv/
 __pycache__/
 *.pyc
@@ -5,4 +7,3 @@ __pycache__/
 *.deb
 *.rpm
 *.db
-Build/

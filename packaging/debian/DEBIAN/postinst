@@ -12,10 +12,10 @@ chown uptime-logger:uptime-logger /var/lib/uptime-logger
 chmod 0750 /var/lib/uptime-logger
 
 echo "Reloading systemd daemon..."
-systemctl daemon-reload || true
+systemctl daemon-reload
 
 echo "Enabling systemd services..."
-systemctl enable uptime-logger.service || true
-systemctl enable uptime-logger-shutdown.service || true
+systemctl enable uptime-logger.service
+systemctl enable uptime-logger-shutdown.service
 
 exit 0

@@ -33,10 +33,6 @@ print(f"Boot logged at {boot_time}")
 
 ### how does this only add on and off to same row
 
-systemctl daemon-reload || true
-
-### what does this do
-
 ### how to add cron to a rpm/deb
 
 %files

@@ -7,7 +7,7 @@ RELEASE     := 2
 TARBALL     := $(NAME)-$(VERSION).tar.gz
 
 # Paths
-BUILD_DIR   := Build
+BUILD_DIR   := build
 PKG_DEBIAN  := packaging/debian
 PKG_RPM     := packaging/rpm
 RPMBUILD    := $(HOME)/rpmbuild
@@ -52,3 +52,9 @@ rpm: tarball-rpm
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR) $(SPECS_DIR) $(SOURCES_DIR)
+c:
+	@echo "Compiling C"
+	mkdir -p $(BUILD_DIR)
+	gcc src/main.c -o build/uptime_logger -lsqlite3
+	gcc src/delta_upload.c -o build/delta_upload -lsqlite3 -lcurl
+	

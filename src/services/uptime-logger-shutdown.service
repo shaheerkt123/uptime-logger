@@ -5,7 +5,7 @@ Before=shutdown.target reboot.target halt.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /usr/local/bin/pc_uptime_logger.py --shutdown
+ExecStart=/usr/local/bin/uptime_logger -s
 
 [Install]
 WantedBy=halt.target reboot.target shutdown.target

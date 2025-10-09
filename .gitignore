@@ -1,5 +1,8 @@
 Build/
 build/
+# etc/systemd/*
+# usr/local/bin/*
+# make this work
 .vscode/*
 venv/
 __pycache__/

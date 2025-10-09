@@ -1,9 +1,9 @@
 Package: uptime-logger
-Version: 1.0
+Version: 2.0
 Section: utils
 Priority: optional
 Architecture: all
 Maintainer: Shaheer <shaheerkt1234@gmail.com>
-Depends: python3, python3-psutil, python3-requests, systemd
+Depends: libsqlite3-0, libcurl4, systemd
 Description: Logs boot and shutdown times to a SQLite database
- Simple utility that records boot and shutdown times in ~/uptime.db.
+ Simple utility that records boot and shutdown.

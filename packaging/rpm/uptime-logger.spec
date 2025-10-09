@@ -1,13 +1,12 @@
 Name:           uptime-logger
-Version:        1.0
-Release:        2%{?dist}
+Version:        2.0
+Release:        1%{?dist}
 Summary:        Logs system uptime and shutdown times
 License:        MIT
 URL:            https://github.com/shaheerkt123/uptime-logger
 Source0:        %{name}-%{version}.tar.gz
 
-BuildArch: noarch
-Requires: python3, python3-psutil, python3-requests, systemd
+Requires: sqlite, libcurl, systemd
 
 %description
 A small tool that logs system uptime and shutdown times, with upload support.
@@ -23,7 +22,7 @@ getent passwd uptime-logger >/dev/null || \
 %setup -q
 
 %build
-# Nothing to build (pure Python + shell scripts)
+# Binaries are pre-compiled via Makefile before rpmbuild is called.
 
 %install
 # Just copy the whole tree from tarball into buildroot
@@ -37,15 +36,15 @@ sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}/etc/systemd/system/upti
 sed -i '/\[Service\]/a User=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger-shutdown.service
 sed -i '/\[Service\]/a Group=uptime-logger' %{buildroot}/etc/systemd/system/uptime-logger-shutdown.service
 # Run cron job as uptime-logger user
-sed -i 's/root/uptime-logger/' %{buildroot}/etc/cron.d/delta_upload
+sed -i 's/root/uptime-logger/' %{buildroot}/etc/cron.d/uptime_upload
 
 %files
-/usr/local/bin/pc_uptime_logger.py
-/usr/local/bin/delta_upload.py
-/usr/local/bin/delta_upload_cron.sh
+/usr/local/bin/uptime_logger
+/usr/local/bin/uptime_upload
+/usr/local/bin/uptime_upload_cron.sh
 /etc/systemd/system/uptime-logger.service
 /etc/systemd/system/uptime-logger-shutdown.service
-/etc/cron.d/delta_upload
+/etc/cron.d/uptime_upload
 /usr/lib/systemd/system-preset/90-uptime-logger.preset
 %dir %attr(0750, uptime-logger, uptime-logger) /var/lib/uptime-logger
 
@@ -64,6 +63,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+
+* Sat Oct 09 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-1
+- Switch from Python scripts to compiled C binaries
+
 * Sat Oct 04 2025 Shaheer <shaheerkt1234@gmail.com> - 1.0-2
 - Create dedicated user and group for service
 - Run services and cron job as dedicated user
@@ -71,3 +74,4 @@ fi
 
 * Wed Oct 01 2025 Shaheer <shaheerkt1234@gmail.com> - 1.0-1
 - Initial RPM release
+uptime_logger

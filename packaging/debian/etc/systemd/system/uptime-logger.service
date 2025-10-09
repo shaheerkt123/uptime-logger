@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /usr/local/bin/pc_uptime_logger.py
+ExecStart=/usr/local/bin/uptime_logger
 
 [Install]
 WantedBy=multi-user.target

@@ -7,7 +7,7 @@ License:        MIT
 URL:            https://github.com/shaheerkt123/uptime-logger
 Source0:        %{name}-%{version}.tar.gz
 
-Requires: sqlite, libcurl, systemd
+Requires: sqlite-libs, libcurl, systemd
 
 %description
 A small tool that logs system uptime and shutdown times, with upload support.

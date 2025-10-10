@@ -1,3 +1,4 @@
+%define debug_package %{nil}
 Name:           uptime-logger
 Version:        2.0
 Release:        1%{?dist}
@@ -64,7 +65,7 @@ fi
 
 %changelog
 
-* Sat Oct 09 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-1
+* Fri Oct 10 2025 Shaheer <shaheerkt1234@gmail.com> - 2.0-1
 - Switch from Python scripts to compiled C binaries
 
 * Sat Oct 04 2025 Shaheer <shaheerkt1234@gmail.com> - 1.0-2

@@ -38,7 +38,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y gcc make rpm-build sqlite-devel libcurl-devel systemd findutils
+          dnf install -y gcc make rpm-build sqlite-devel libcurl-devel systemd findutils rsync
 
       - name: Build .rpm package
         run: make rpm

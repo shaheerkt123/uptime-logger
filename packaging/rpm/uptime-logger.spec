@@ -5,7 +5,7 @@ Summary:        Logs system uptime and shutdown times
 
 License:        MIT
 URL:            https://github.com/shaheerkt123/uptime-logger
-Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  gcc
 BuildRequires:  sqlite-devel

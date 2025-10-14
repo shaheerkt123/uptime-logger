@@ -79,32 +79,51 @@ A cron job is also included to periodically run the `uptime_upload` utility, ens
 
 ## Building from Source
 
-To build the project from source, you will need the following dependencies:
+The recommended way to build the packages from source is by using the provided Dockerfiles, which ensures a clean and reproducible build environment.
 
-- `build-essential` (or equivalent for your distribution)
-- `gcc`
-- `libsqlite3-dev`
-- `libcurl4-openssl-dev`
-- `dpkg` (for .deb building)
-- `rpmbuild` (for .rpm building)
+### Building with Docker
 
-Once the dependencies are installed, you can build the project using the provided `Makefile`.
+First, ensure you have a local `build` directory for the output files:
 
-### Build Debian Package
-
-```bash
-make deb
+```sh
+mkdir -p build
 ```
 
-The resulting `.deb` package will be created in the `build/` directory.
+#### Build Debian Package (.deb)
 
-### Build RPM Package
+1.  **Build the Docker image:**
+    ```sh
+    docker build -t uptime-logger-deb-builder -f packaging/debian/Dockerfile .
+    ```
+2.  **Run the build:**
+    ```sh
+    docker run --rm -v $(pwd)/build:/app/build uptime-logger-deb-builder
+    ```
+    The `.deb` package will be available in your local `build/` directory.
+
+#### Build RPM Package (.rpm)
+
+1.  **Build the Docker image:**
+    ```sh
+    docker build -t uptime-logger-rpm-builder -f packaging/rpm/Dockerfile .
+    ```
+2.  **Run the build:**
+    ```sh
+    docker run --rm -v $(pwd)/build:/app/build uptime-logger-rpm-builder
+    ```
+    The `.rpm` packages will be available in your local `build/` directory.
+
+### Building Natively (Advanced)
+
+If you prefer to build on your host system directly, you must install all the required dependencies for your distribution (e.g., `gcc`, `libsqlite3-dev`, `rpm-build`, etc.).
 
 ```bash
+# To build the binaries
+make build
+
+# To build the RPM package (requires RPM build tools)
 make rpm
 ```
-
-The resulting `.rpm` package will be created in the `build/` directory.
 
 ## Configuration
 

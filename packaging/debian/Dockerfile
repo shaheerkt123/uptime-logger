@@ -19,6 +19,9 @@ COPY . .
 ENV DEB_BUILD_OPTS=nocheck
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Build the Debian package
+# Create a build directory for the output
+RUN mkdir build
+
+# Build the Debian package and move the artifact to the build directory
 # The -us -uc flags prevent signing, which is not needed here.
-CMD ["dpkg-buildpackage", "-us", "-uc"]
+CMD ["sh", "-c", "dpkg-buildpackage -us -uc && mv ../*.deb build/"]

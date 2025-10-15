@@ -111,14 +111,14 @@ build-rpm-image:
 deb-docker: build-deb-image
 	@echo "Creating .deb package..."
 	@mkdir -p $(BUILD_DIR)
-	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build" $(DEB_IMG_TAG)
+	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build:z" $(DEB_IMG_TAG)
 	@echo "Debian package created in $(BUILD_DIR)/"
 
 # Target to create the .rpm package using Docker
 rpm-docker: build-rpm-image
 	@echo "Creating .rpm package..."
 	@mkdir -p $(BUILD_DIR)
-	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build" $(RPM_IMG_TAG)
+	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build:z" $(RPM_IMG_TAG)
 	@echo "RPM package created in $(BUILD_DIR)/"
 
 # A target to build both packages via Docker

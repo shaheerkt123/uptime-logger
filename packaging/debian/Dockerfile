@@ -17,9 +17,7 @@ RUN --mount=type=cache,target=/var/cache/apt,id=apt-cache \
 
 # Copy Debian packaging metadata separately for better caching
 WORKDIR /app
-COPY packaging/debian/control packaging/debian/control
-COPY packaging/debian/rules packaging/debian/rules
-COPY packaging/debian/changelog packaging/debian/changelog
+COPY packaging/debian/control packaging/debian/rules packaging/debian/changelog packaging/debian/copyright packaging/debian/postinst ./debian/
 
 # Install build dependencies declared in debian/control
 # Only re-runs if control or other packaging files change
@@ -37,7 +35,7 @@ COPY . .
 ENV DEB_BUILD_OPTS=nocheck
 
 # Create build output directory
-RUN mkdir build
+RUN mkdir -p build
 
 # Default command: build .deb and move it to build/
 CMD ["sh", "-c", "dpkg-buildpackage -us -uc && mv ../*.deb build/"]

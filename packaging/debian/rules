@@ -6,6 +6,11 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@
 
+override_dh_auto_clean:
+	# Do nothing to prevent 'make clean' from being run inside the Docker
+	# container, where it would fail trying to remove the mounted 'build'
+	# directory.
+
 override_dh_install:
 	dh_install
 	# Add User and Group to service files

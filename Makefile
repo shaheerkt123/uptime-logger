@@ -76,7 +76,7 @@ install: build
 	install -m 644 $(SRC_DIR)/services/uptime-logger-shutdown.service $(DESTDIR)$(SYSTEMD_DIR)/
 	install -m 644 $(SRC_DIR)/cron/uptime-logger $(DESTDIR)/etc/cron.d/
 
-dist: clean
+dist:
 	@echo "Creating source tarball..."
 	@mkdir -p $(DIST_DIR)
 	@cp -r src/ packaging/ LICENSE Makefile README.md TODO $(DIST_DIR)/
@@ -89,8 +89,8 @@ rpm: dist
 	@cp $(TARBALL) $(HOME)/rpmbuild/SOURCES/
 	@rpmbuild -ba packaging/rpm/uptime-logger.spec
 	@echo "Moving RPMs to $(BUILD_DIR)/..."
-	@find $(HOME)/rpmbuild/RPMS -name "$(NAME)*.rpm" -exec mv {} $(BUILD_DIR) \\
-	@find $(HOME)/rpmbuild/SRPMS -name "$(NAME)*.src.rpm" -exec mv {} $(BUILD_DIR) \\
+	@find $(HOME)/rpmbuild/RPMS -name "$(NAME)*.rpm" -exec mv {} $(BUILD_DIR) \;
+	@find $(HOME)/rpmbuild/SRPMS -name "$(NAME)*.src.rpm" -exec mv {} $(BUILD_DIR) \;
 
 # --- Docker Package Builds ---
 

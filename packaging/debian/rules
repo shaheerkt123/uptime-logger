@@ -5,3 +5,13 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
 	dh $@
+
+override_dh_install:
+	dh_install
+	# Add User and Group to service files
+	sed -i '/\[Service\]/a User=uptime-logger' debian/uptime-logger/etc/systemd/system/uptime-logger.service
+	sed -i '/\[Service\]/a Group=uptime-logger' debian/uptime-logger/etc/systemd/system/uptime-logger.service
+	sed -i '/\[Service\]/a User=uptime-logger' debian/uptime-logger/etc/systemd/system/uptime-logger-shutdown.service
+	sed -i '/\[Service\]/a Group=uptime-logger' debian/uptime-logger/etc/systemd/system/uptime-logger-shutdown.service
+	# Run cron job as uptime-logger user
+	sed -i 's/root/uptime-logger/' debian/uptime-logger/etc/cron.d/uptime-logger

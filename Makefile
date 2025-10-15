@@ -22,9 +22,27 @@ PREFIX      := /usr
 BIN_DIR     := $(PREFIX)/bin
 SYSTEMD_DIR ?= /etc/systemd/system
 
-.PHONY: all build clean install dist rpm
+.PHONY: all build clean install dist rpm help \
+        build-deb-image build-rpm-image deb rpm-docker docker-packages
 
-all: build
+# Default target: show help
+all: help
+
+help:
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Main Targets:"
+	@echo "  build                Build the local binaries."
+	@echo "  install              Install the binaries and service files."
+	@echo "  clean                Remove build artifacts."
+	@echo "  dist                 Create a source tarball."
+	@echo "  rpm                  Build the RPM package locally."
+	@echo "  help                 Show this help message."
+	@echo ""
+	@echo "Docker-based Package Builds:"
+	@echo "  deb-docker           Build the .deb package using Docker."
+	@echo "  rpm-docker           Build the .rpm package using Docker."
+	@echo "  docker-packages      Build both .deb and .rpm packages using Docker."
 
 build: $(BUILD_DIR)/uptime_logger $(BUILD_DIR)/uptime_upload
 
@@ -48,6 +66,7 @@ install: build
 	install -d $(DESTDIR)$(BIN_DIR)
 	install -d $(DESTDIR)$(SYSTEMD_DIR)
 	install -d $(DESTDIR)/etc/cron.d
+	install -d $(DESTDIR)/var/lib/uptime-logger
 	# Install binaries
 	install -m 755 $(BUILD_DIR)/uptime_logger $(DESTDIR)$(BIN_DIR)/
 	install -m 755 $(BUILD_DIR)/uptime_upload $(DESTDIR)$(BIN_DIR)/
@@ -70,5 +89,37 @@ rpm: dist
 	@cp $(TARBALL) $(HOME)/rpmbuild/SOURCES/
 	@rpmbuild -ba packaging/rpm/uptime-logger.spec
 	@echo "Moving RPMs to $(BUILD_DIR)/..."
-	@find $(HOME)/rpmbuild/RPMS -name "$(NAME)*.rpm" -exec mv {} $(BUILD_DIR) \;
-	@find $(HOME)/rpmbuild/SRPMS -name "$(NAME)*.src.rpm" -exec mv {} $(BUILD_DIR) \;
+	@find $(HOME)/rpmbuild/RPMS -name "$(NAME)*.rpm" -exec mv {} $(BUILD_DIR) \\
+	@find $(HOME)/rpmbuild/SRPMS -name "$(NAME)*.src.rpm" -exec mv {} $(BUILD_DIR) \\
+
+# --- Docker Package Builds ---
+
+DEB_IMG_TAG := uptime-logger-deb
+RPM_IMG_TAG := uptime-logger-rpm
+
+# Target to build the Debian Docker image
+build-deb-image:
+	@echo "Building Debian Docker image..."
+	@docker build -t $(DEB_IMG_TAG) -f packaging/debian/Dockerfile .
+
+# Target to build the RPM Docker image
+build-rpm-image:
+	@echo "Building RPM Docker image..."
+	@docker build -t $(RPM_IMG_TAG) -f packaging/rpm/Dockerfile .
+
+# Target to create the .deb package using Docker
+deb-docker: build-deb-image
+	@echo "Creating .deb package..."
+	@mkdir -p $(BUILD_DIR)
+	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build" $(DEB_IMG_TAG)
+	@echo "Debian package created in $(BUILD_DIR)/"
+
+# Target to create the .rpm package using Docker
+rpm-docker: build-rpm-image
+	@echo "Creating .rpm package..."
+	@mkdir -p $(BUILD_DIR)
+	@docker run --rm -v "$(CURDIR)/$(BUILD_DIR):/app/build" $(RPM_IMG_TAG)
+	@echo "RPM package created in $(BUILD_DIR)/"
+
+# A target to build both packages via Docker
+docker-packages: deb-docker rpm-docker

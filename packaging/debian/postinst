@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        if ! getent group uptime-logger >/dev/null; then
+            addgroup --system uptime-logger >/dev/null
+        fi
+        if ! getent passwd uptime-logger >/dev/null; then
+            adduser --system --ingroup uptime-logger --no-create-home \
+                --home /var/lib/uptime-logger --shell /usr/sbin/nologin \
+                --gecos "Uptime Logger service account" uptime-logger >/dev/null
+        fi
+        chown uptime-logger:uptime-logger /var/lib/uptime-logger
+    ;; 
+esac
+
+#DEBHELPER#
+
+exit 0

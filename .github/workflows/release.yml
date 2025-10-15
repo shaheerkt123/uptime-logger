@@ -14,13 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libcurl4-openssl-dev
-
       - name: Build .deb package
-        run: make deb
+        run: |
+          docker build -t debian-builder -f packaging/debian/Dockerfile .
+          mkdir -p ${{ github.workspace }}/build
+          docker run --rm -v ${{ github.workspace }}/build:/app/build debian-builder
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
@@ -30,18 +28,15 @@ jobs:
 
   build-rpm:
     runs-on: ubuntu-latest
-    container:
-      image: fedora:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          dnf install -y gcc make rpm-build sqlite-devel libcurl-devel systemd findutils rsync
-
       - name: Build .rpm package
-        run: make rpm
+        run: |
+          docker build -t rpm-builder -f packaging/rpm/Dockerfile .
+          mkdir -p ${{ github.workspace }}/build
+          docker run --rm -v ${{ github.workspace }}/build:/app/build rpm-builder
 
       - name: Upload .rpm artifact
         uses: actions/upload-artifact@v4

@@ -1,27 +1,43 @@
-# Use the official Debian stable image
+# syntax=docker/dockerfile:1
+# Use the official minimal Debian base image
 FROM debian:stable-slim
 
-# Install Debian build tools and package dependencies
-RUN apt-get update && apt-get install -y \
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install essential build tools (rarely changes → good for caching)
+RUN --mount=type=cache,target=/var/cache/apt,id=apt-cache \
+    --mount=type=cache,target=/var/lib/apt,id=apt-lib \
+    apt-get update && apt-get install -y \
     build-essential \
     devscripts \
     debhelper \
     fakeroot \
-    git \
-    libsqlite3-dev \
-    libcurl4-openssl-dev
+    git
 
-# Copy the entire project source code into the container
+# Copy Debian packaging metadata separately for better caching
 WORKDIR /app
+COPY packaging/debian/control packaging/debian/control
+COPY packaging/debian/rules packaging/debian/rules
+COPY packaging/debian/changelog packaging/debian/changelog
+
+# Install build dependencies declared in debian/control
+# Only re-runs if control or other packaging files change
+# Use a cache mount to persist apt's cache across builds
+RUN --mount=type=cache,target=/var/cache/apt,id=apt-cache \
+    --mount=type=cache,target=/var/lib/apt,id=apt-lib \
+    apt-get update && \
+    apt-get build-dep -y ./ && \
+    apt-get autoremove -y
+
+# Copy the rest of the project after dependency layers are cached
 COPY . .
 
-# Set environment variables for a non-interactive build
+# Set noninteractive build options
 ENV DEB_BUILD_OPTS=nocheck
-ENV DEBIAN_FRONTEND=noninteractive
 
-# Create a build directory for the output
+# Create build output directory
 RUN mkdir build
 
-# Build the Debian package and move the artifact to the build directory
-# The -us -uc flags prevent signing, which is not needed here.
+# Default command: build .deb and move it to build/
 CMD ["sh", "-c", "dpkg-buildpackage -us -uc && mv ../*.deb build/"]

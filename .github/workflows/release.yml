@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  build-packages:
+  build-unsigned-packages:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,19 +20,46 @@ jobs:
       - name: Upload packages artifact
         uses: actions/upload-artifact@v4
         with:
-          name: packages
+          name: unsigned-packages
           path: build/*.{deb,rpm}
+
+  sign-packages:
+    runs-on: ubuntu-latest
+    needs: [build-unsigned-packages]
+    steps:
+      - name: Download unsigned packages
+        uses: actions/download-artifact@v4
+        with:
+          name: unsigned-packages
+          path: artifacts
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Sign packages
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          chmod +x .github/scripts/sign-packages.sh
+          .github/scripts/sign-packages.sh
+
+      - name: Upload signed packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-packages
+          path: signed_artifacts/
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-packages]
+    needs: [sign-packages]
     permissions:
       contents: write
     steps:
-      - name: Download all packages
+      - name: Download all signed packages
         uses: actions/download-artifact@v4
         with:
-          name: packages
+          name: signed-packages
           path: dist
 
       - name: Create Release and Upload Assets

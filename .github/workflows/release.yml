@@ -20,8 +20,14 @@ jobs:
       - name: Upload packages artifact
         uses: actions/upload-artifact@v4
         with:
-          name: packages
-          path: build/*.{deb,rpm}
+          name: unsigned-packages
+          path: |
+            build/uptime-logger-*.rpm
+            !build/uptime-logger-debuginfo-*.rpm
+            !build/uptime-logger-debugsource-*.rpm
+            !build/uptime-logger-*.src.rpm
+            build/uptime-logger_*.deb
+            !build/uptime-logger-dbgsym_*.deb
 
   create-release:
     runs-on: ubuntu-latest

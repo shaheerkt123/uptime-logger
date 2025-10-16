@@ -28,7 +28,6 @@ It also includes a feature to upload the collected data to a specified `ntfy.sh`
 
 - [Features](#features)
 - [How it Works](#how-it-works)
-- [Project Structure](#project-structure)
 - [Building from Source](#building-from-source)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -91,11 +90,13 @@ mkdir -p build
 
 #### Build Debian Package (.deb)
 
-1.  **Build the Docker image:**
-    ```sh
-    docker build -t uptime-logger-deb-builder -f packaging/debian/Dockerfile .
-    ```
-2.  **Run the build:**
+1. **Build the Docker image:**
+
+```sh
+docker build -t uptime-logger-deb-builder -f packaging/debian/Dockerfile .
+```
+
+2.**Run the build:**
     ```sh
     docker run --rm -v $(pwd)/build:/app/build uptime-logger-deb-builder
     ```
@@ -103,11 +104,11 @@ mkdir -p build
 
 #### Build RPM Package (.rpm)
 
-1.  **Build the Docker image:**
+1.**Build the Docker image:**
     ```sh
     docker build -t uptime-logger-rpm-builder -f packaging/rpm/Dockerfile .
     ```
-2.  **Run the build:**
+2.**Run the build:**
     ```sh
     docker run --rm -v $(pwd)/build:/app/build uptime-logger-rpm-builder
     ```

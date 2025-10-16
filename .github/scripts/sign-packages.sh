@@ -34,6 +34,13 @@ SIGNED_DIR="signed_artifacts"
 mkdir -p "$SIGNED_DIR"
 
 echo "Signing packages in $ARTIFACTS_DIR..."
+
+# Exit if no packages are found.
+if ! compgen -G "$ARTIFACTS_DIR/*" > /dev/null; then
+  echo "Error: No packages found in $ARTIFACTS_DIR to sign." >&2
+  exit 1
+fi
+
 for pkg in "$ARTIFACTS_DIR"/*; do
   echo "Processing $pkg..."
   if [[ "$pkg" == *.rpm ]]; then

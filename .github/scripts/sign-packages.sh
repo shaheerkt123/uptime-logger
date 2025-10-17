@@ -26,7 +26,7 @@ cat > ~/.rpmmacros <<EOF
 %_signature gpg
 %_gpg_name $GPG_KEY_ID
 %_gpg_digest_algo sha256
-%__gpg_sign_cmd %{__gpg} gpg --batch --verbose --no-armor --pinentry-mode loopback --passphrase-file "$GPG_PASSPHRASE_FILE" --sign -u %{_gpg_name} -o %{__signature_filename} %{__plaintext_filename}
+%__gpg_sign_cmd %{__gpg} gpg --batch --verbose --no-armor --pinentry-mode loopback --passphrase-file "$GPG_PASSPHRASE_FILE" --personal-digest-preferences SHA256 --sign -u %{_gpg_name} -o %{__signature_filename} %{__plaintext_filename}
 EOF
 
 # --- Install Signing Tools ---

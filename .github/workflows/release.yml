@@ -50,6 +50,15 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          echo "Listing files with original permissions:"
+          ls -lR build
+          
+          echo "Changing ownership of build/ directory..."
+          sudo chown -R $(whoami) build
+          
+          echo "Listing files with new permissions:"
+          ls -lR build
+          
           # The signing script will need to look for packages in `build/`
           # and output them to `signed_artifacts/`
           chmod +x .github/scripts/sign-packages.sh

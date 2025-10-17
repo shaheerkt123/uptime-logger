@@ -43,7 +43,7 @@ fi
 
 for pkg in "$ARTIFACTS_DIR"/*; do
   echo "Processing $pkg..."
-  if [[ "$pkg" == *.rpm ]]; then
+  if [[ "$pkg" == *.rpm && "$pkg" != *.src.rpm ]]; then
     echo "Signing RPM package..."
     rpm --addsign "$pkg"
     mv "$pkg" "$SIGNED_DIR/"

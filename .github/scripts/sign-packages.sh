@@ -29,7 +29,7 @@ sudo apt-get update
 sudo apt-get install -y rpm devscripts
 
 # --- Sign Packages ---
-ARTIFACTS_DIR="artifacts"
+ARTIFACTS_DIR="build"
 SIGNED_DIR="signed_artifacts"
 mkdir -p "$SIGNED_DIR"
 

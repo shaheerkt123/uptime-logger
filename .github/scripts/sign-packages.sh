@@ -14,13 +14,19 @@ echo "$GPG_PRIVATE_KEY" | gpg --batch --import
 GPG_KEY_ID=$(gpg --list-keys --with-colons | grep '^pub' | cut -d: -f5)
 echo "GPG Key ID: $GPG_KEY_ID"
 
+# Create a temporary file for the GPG passphrase
+GPG_PASSPHRASE_FILE=$(mktemp)
+echo "$GPG_PASSPHRASE" > "$GPG_PASSPHRASE_FILE"
+chmod 600 "$GPG_PASSPHRASE_FILE"
+trap 'rm -f "$GPG_PASSPHRASE_FILE"' EXIT
+
 # Configure RPM to use the GPG key
 echo "Configuring RPM macros..."
 cat > ~/.rpmmacros <<EOF
 %_signature gpg
 %_gpg_name $GPG_KEY_ID
 %_gpg_digest_algo sha256
-%__gpg_sign_cmd %{__gpg} gpg --batch --verbose --no-armor --pinentry-mode loopback --passphrase-env GPG_PASSPHRASE --sign -u %{_gpg_name} -o %{__signature_filename} %{__plaintext_filename}
+%__gpg_sign_cmd %{__gpg} gpg --batch --verbose --no-armor --pinentry-mode loopback --passphrase-file "$GPG_PASSPHRASE_FILE" --sign -u %{_gpg_name} -o %{__signature_filename} %{__plaintext_filename}
 EOF
 
 # --- Install Signing Tools ---
@@ -53,8 +59,7 @@ for pkg in "$ARTIFACTS_DIR"/*; do
     # We need to make sure GPG uses the passphrase from the environment variable.
     # debsign doesn't have a direct way to pass the passphrase, but it respects
     # gpg's options. We can use gpg-agent.
-    eval $(gpg-agent --daemon --pinentry-mode loopback --passphrase-env GPG_PASSPHRASE)
-    debsign -k"$GPG_KEY_ID" "$pkg"
+    echo "$GPG_PASSPHRASE" | debsign --re-sign -k"$GPG_KEY_ID" -p"gpg --batch --pinentry-mode loopback --passphrase-fd 0" "$pkg"
     mv "$pkg" "$SIGNED_DIR/"
   else
     echo "Unknown package type, moving without signing."

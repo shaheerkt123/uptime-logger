@@ -6,7 +6,6 @@ Vcs-Browser: https://github.com/shaheerkt123/uptime-logger
 Build-Depends: debhelper-compat (= 13), gcc, libsqlite3-dev, libcurl4-openssl-dev
 Section: utils
 Priority: optional
-
 Package: uptime-logger
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
